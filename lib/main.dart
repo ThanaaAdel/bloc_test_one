@@ -1,8 +1,7 @@
-import 'package:bloc_test_one/counter_bloc.dart';
-import 'package:bloc_test_one/counter_event.dart';
-import 'package:bloc_test_one/counter_state.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
+
+import 'count_class.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,8 +12,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => CounterBloc(),
+    return ChangeNotifierProvider<Counter>(
+      create: (context) => Counter(),
       child: MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
@@ -27,20 +26,16 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatefulWidget {
+class MyHomePage extends StatelessWidget {
   const MyHomePage({super.key, required this.title});
   final String title;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  @override
   Widget build(BuildContext context) {
+    final counter = Provider.of<Counter>(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(title),
       ),
       body: Center(
         // Removed the const keyword
@@ -48,26 +43,13 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text(
-              'Bloc Test',
+              'Provider Test',
               style: TextStyle(fontSize: 22, color: Colors.black),
             ),
             const SizedBox(height: 20),
-            BlocBuilder<CounterBloc, CounterState>(
-              builder: (context, state) {
-                if (state is CounterInitial) {
-                  return const Text(
-                    '0',
-                    style: TextStyle(fontSize: 22, color: Colors.red),
-                  );
-                } else if (state is ChangeValueFromCounter) {
-                  return Text(
-                    state.counter.toString(),
-                    style: const TextStyle(fontSize: 22, color: Colors.red),
-                  );
-                } else {
-                  return Container();
-                }
-              },
+            Text(
+              counter.counter.toString(),
+              style: const TextStyle(fontSize: 22, color: Colors.red),
             ),
           ],
         ),
@@ -78,8 +60,8 @@ class _MyHomePageState extends State<MyHomePage> {
         children: [
           FloatingActionButton(
             onPressed: () {
-              // Dispatch Increment event
-              context.read<CounterBloc>().add(Increment());
+              counter.increment();
+              print("counter ${counter.counter}");
             },
             tooltip: 'Increment',
             child: const Icon(Icons.add),
@@ -87,20 +69,8 @@ class _MyHomePageState extends State<MyHomePage> {
           const SizedBox(height: 20),
           FloatingActionButton(
             onPressed: () {
-              // Dispatch Reset event
-              context.read<CounterBloc>().add(Reset());
-            },
-            tooltip: 'Reset',
-            child: const Text(
-              "0",
-              style: TextStyle(fontSize: 22, color: Colors.black),
-            ),
-          ),
-          const SizedBox(height: 20),
-          FloatingActionButton(
-            onPressed: () {
-              // Dispatch Decrement event
-              context.read<CounterBloc>().add(Decrement());
+              counter.decrement();
+              print("counter ${counter.counter}");
             },
             tooltip: 'Decrement',
             child: const Icon(Icons.remove), // Changed to remove icon
